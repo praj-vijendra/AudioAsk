@@ -20,8 +20,8 @@ logging.basicConfig(
 # Create FastAPI app
 fastapi_application = FastAPI(
     title="Audio Transcription and Diarization API",
-    description="API for transcribing audio using Distil-Whisper and performing speaker diarization",
-    version="1.0.0"
+    description="API for transcribing audio using WhisperX and performing speaker diarization",
+    version="0.1.0"
 )
 
 # Add CORS middleware
@@ -33,10 +33,8 @@ fastapi_application.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Prometheus metrics
 Instrumentator().instrument(fastapi_application).expose(fastapi_application)
 
-# Include routers
 fastapi_application.include_router(router, prefix="/api/v1")
 
 # Create Modal app
@@ -44,13 +42,14 @@ app = modal.App("distil-whisper-diarization-api-prod")
 
 # Create Modal image
 whisper_image = (
-    modal.Image.debian_slim(python_version="3.10")
+    modal.Image.from_registry(f"nvidia/cuda:12.2.2-devel-ubuntu22.04", add_python="3.10")
     .apt_install("git", "ffmpeg", "libsndfile1")
     .pip_install(
         "numpy<2.0.0",
-        "torch==2.2.0",
-        "torchaudio==2.2.0",
-        "transformers>=4.30.0",
+        "torch==2.3.1",
+        "torchaudio==2.3.1",
+        "transformers",
+        "whisperx",
         "pyannote.audio==3.3.2",
         "accelerate>=0.26.0",
         "hf_transfer",
@@ -67,17 +66,16 @@ whisper_image = (
         "python-dotenv",
         "yt-dlp",
         "browser_cookie3",
+        "nvidia-pyindex",
     )
     .env({
         "HF_HUB_ENABLE_HF_TRANSFER": "1",
-        "TORCH_CUDA_ARCH_LIST": "7.5;8.0;8.6;9.0",
+        # "TORCH_CUDA_ARCH_LIST": "7.5;8.0;8.6;9.0",
         "CUDA_VISIBLE_DEVICES": "0"
     })
-    # Add local source code to the image
     .add_local_python_source("src")
 )
 
-# Create Modal volume
 volume = modal.Volume.from_name(
     "distil-whisper-diarization-prod-cache",
     create_if_missing=True
@@ -91,7 +89,7 @@ volume = modal.Volume.from_name(
         modal.Secret.from_name("custom-secret-2")
     ],
     volumes={CACHE_DIR: volume},
-    scaledown_window=600,  # Renamed from container_idle_timeout
+    scaledown_window=600,
     timeout=1800,
 )
 @modal.asgi_app(label="fastapi-app")
