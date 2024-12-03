@@ -70,7 +70,8 @@ class Segment(BaseModel):
 
 class ProcessResponse(BaseModel):
     language: str
-    segments: str
+    segments: List[Segment]
+    transcript: str
     duration: float
     warning: Optional[str] = None
 
@@ -90,14 +91,13 @@ async def process_youtube_audio(request: ProcessRequest, background_tasks: Backg
     try:
         temp_dir = tempfile.mkdtemp()
         
-        # Setup YouTube authentication
-        youtube_token = os.environ.get("YOUTUBE_TOKEN")
-        
-        # Initialize YouTube extractor with all available authentication methods
-        # The extractor will try them in order: cookies file, browser cookies, token
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        cookie_file_path = os.path.abspath(os.path.join(current_dir, '..', 'cookies', 'cookies.txt'))
+
+
         youtube_extractor = YouTubeExtractor(
             temp_dir, 
-            youtube_token=youtube_token,
+            cookies_path=cookie_file_path 
         )
         
         # Extract audio from YouTube
