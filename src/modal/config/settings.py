@@ -12,7 +12,7 @@ YOUTUBE_TOKEN = os.environ.get("YOUTUBE_TOKEN")
 YOUTUBE_COOKIES_PATH = os.environ.get("YOUTUBE_COOKIES_PATH")
 
 # Model Configuration
-DEFAULT_MODEL_NAME = "distil-whisper/distil-medium.en"
+DEFAULT_MODEL_NAME = "large-v2"
 DEFAULT_COMPUTE_TYPE = "float16"
 DEFAULT_BATCH_SIZE = 16
 
