@@ -30,7 +30,7 @@ cd <repository-name>
 2. Create a virtual environment and activate it:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 ```
 
 3. Install dependencies:
@@ -45,10 +45,6 @@ HF_TOKEN=your_huggingface_token
 API_TOKEN=your_api_token
 ```
 
-5. Set up Modal secrets:
-```bash
-modal secret create hf-secret HF_TOKEN=your_huggingface_token
-```
 
 ## Deployment
 
@@ -128,15 +124,3 @@ The API returns appropriate HTTP status codes and error messages:
 - 401: Unauthorized (invalid token)
 - 429: Too Many Requests (rate limit exceeded)
 - 500: Internal Server Error
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details. 
