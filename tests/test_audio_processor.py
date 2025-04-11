@@ -6,8 +6,6 @@ from unittest.mock import patch, MagicMock, mock_open, AsyncMock, ANY
 import os
 import tempfile
 import subprocess
-
-# Ensure the src directory is in the Python path for imports
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
