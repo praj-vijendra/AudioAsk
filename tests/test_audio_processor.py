@@ -1,4 +1,3 @@
-# Create file: src/tests/test_audio_processor.py
 import pytest
 import torch
 import numpy as np
