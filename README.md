@@ -1,6 +1,6 @@
 # Audio Transcription and Diarization API
 
-This API provides endpoints for transcribing audio from YouTube videos or uploaded files, with speaker diarization capabilities using Distil-Whisper and pyannote.audio.
+This API provides endpoints for transcribing audio from YouTube videos or uploaded files, with speaker diarization capabilities using WhisperX and pyannote.audio.
 
 ## Features
 
