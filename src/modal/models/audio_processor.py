@@ -53,35 +53,32 @@ class AudioProcessor:
 
     def _load_audio(self, file_path: str) -> Tuple[np.ndarray, float]:
         """Load and preprocess audio file.
-        
         Args:
             file_path: Path to the audio file
-            
         Returns:
             Tuple of (waveform numpy array, duration in seconds)
         """
         if not os.path.exists(file_path):
             raise ValueError(f"Audio file not found: {file_path}")
-            
+
         try:
             info = torchaudio.info(file_path)
-            target_sr = 16000
-            
-            # Use WhisperX's load_audio for consistency
-            audio = whisperx.load_audio(file_path, target_sr)
-            
-            # Get original waveform for duration calculation
-            waveform, sample_rate = torchaudio.load(file_path)
-            duration = waveform.shape[1] / sample_rate
-            
-            if duration > MAX_AUDIO_DURATION:
-                raise ValueError(f"Audio duration ({duration:.2f}s) exceeds maximum allowed duration ({MAX_AUDIO_DURATION}s)")
-            
-            return audio, duration
-            
+            sample_rate = info.sample_rate
+            duration = info.num_frames / sample_rate
         except Exception as e:
-            logger.exception(f"Failed to load audio file: {file_path}")
-            raise RuntimeError(f"Failed to load audio file: {e}")
+            logger.exception(f"Failed to get audio metadata for: {file_path}")
+            raise RuntimeError(f"Failed to get audio metadata: {e}") from e
+
+        if duration > MAX_AUDIO_DURATION:
+            raise ValueError(f"Audio duration ({duration:.2f}s) exceeds maximum allowed duration ({MAX_AUDIO_DURATION}s)")
+        try:
+            target_sr = 16000
+            audio = whisperx.load_audio(file_path, target_sr)
+            return audio, duration
+
+        except Exception as e:
+            logger.exception(f"Failed to load or process audio file: {file_path}")
+            raise RuntimeError(f"Failed to load or process audio file: {e}") from e
 
     def _convert_to_mono_16khz_ffmpeg(self, file_path: str, target_sr: int) -> str:
         """Convert audio to mono 16kHz WAV using ffmpeg."""
